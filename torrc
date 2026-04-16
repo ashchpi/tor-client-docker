@@ -1,0 +1,7 @@
+DataDirectory /var/lib/tor
+
+ClientTransportPlugin snowflake exec /usr/local/bin/snowflake-client -log snowflake.log
+ClientTransportPlugin obfs4 exec /usr/local/bin/lyrebird
+ClientTransportPlugin meek exec /usr/local/bin/meek-client --log meek-client.log
+
+%include /etc/tor/torrc.custom

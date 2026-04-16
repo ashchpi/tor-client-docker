@@ -1,0 +1,21 @@
+# Safe client only config
+
+AutomapHostsOnResolve 1
+ClientOnly 1
+ControlPort 0.0.0.0:9051
+ControlSocket /etc/tor/run/control
+ControlSocketsGroupWritable 1
+CookieAuthentication 1
+CookieAuthFile /etc/tor/run/control.authcookie
+CookieAuthFileGroupReadable 1
+DNSPort 5353
+DataDirectory /var/lib/tor
+ExitPolicy reject *:*
+Log notice stderr
+RunAsDaemon 0
+SocksPort 0.0.0.0:9050 IsolateDestAddr
+SocksPolicy accept 10.0.0.0/8
+SocksPolicy accept 172.16.0.0/12
+SocksPolicy accept 192.168.0.0/16
+SocksPolicy reject *
+TransPort 0.0.0.0:9040
