@@ -62,7 +62,7 @@ RUN gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys \
 		2133BC600AB133E1D826D173FE43009C4607B1FB
 
 # if HTTP_PROXY is setted to socks5h://localhost:9050 we download tor sources via tor
-RUN if [ -n ${HTTP_PROXY} ]; then \
+RUN if [ -n "${HTTP_PROXY}" ]; then \
 		echo "using proxy: ${HTTP_PROXY}" && \
 		curl -x ${HTTP_PROXY} -O ${TOR_TARBALL_URL} && \
 		curl -x ${HTTP_PROXY} -O ${TOR_TARBALL_URL}.sha256sum && \
