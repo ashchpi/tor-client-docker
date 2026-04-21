@@ -15,6 +15,10 @@ ARG SNOWFLAKE_VERSION=2.9.2
 ARG SNOWFLAKE_TARBALL=snowflake-v${SNOWFLAKE_VERSION}.tar.gz
 ARG SNOWFLAKE_TARBALL_URL=https://gitlab.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake/-/archive/v${SNOWFLAKE_VERSION}/snowflake-v${SNOWFLAKE_VERSION}.tar.gz
 
+ARG OBFS4_VERSION=0.0.14
+ARG OBFS4_TARBALL=obfs4-obfs4proxy-${OBFS4_VERSION}.tar.bz2
+ARG OBFS4_TARBALL_URL=https://gitlab.com/yawning/obfs4/-/archive/obfs4proxy-${OBFS4_VERSION}/obfs4-obfs4proxy-${OBFS4_VERSION}.tar.bz2
+
 ARG GOST_VERSION=3.2.6
 
 #base - base image with runtime dependecies
@@ -46,6 +50,9 @@ ARG MEEK_TARBALL_URL
 ARG SNOWFLAKE_VERSION
 ARG SNOWFLAKE_TARBALL
 ARG SNOWFLAKE_TARBALL_URL
+ARG OBFS4_VERSION
+ARG OBFS4_TARBALL
+ARG OBFS4_TARBALL_URL
 ARG HTTP_PROXY
 WORKDIR /build
 RUN apk add --no-cache \
@@ -67,6 +74,7 @@ RUN if [ -n "${HTTP_PROXY}" ]; then \
 		curl -x ${HTTP_PROXY} -O ${TOR_TARBALL_URL} && \
 		curl -x ${HTTP_PROXY} -O ${TOR_TARBALL_URL}.sha256sum && \
 		curl -x ${HTTP_PROXY} -O ${TOR_TARBALL_URL}.sha256sum.asc && \
+		curl -x ${HTTP_PROXY} -O ${OBFS4_TARBALL_URL} &&\
 		curl -x ${HTTP_PROXY} -O ${LYREBIRD_TARBALL_URL} &&\
 		curl -x ${HTTP_PROXY} -O ${MEEK_TARBALL_URL} &&\
 		curl -x ${HTTP_PROXY} -O ${SNOWFLAKE_TARBALL_URL} ;\
@@ -75,6 +83,7 @@ RUN if [ -n "${HTTP_PROXY}" ]; then \
 		curl -O ${TOR_TARBALL_URL} && \
 		curl -O ${TOR_TARBALL_URL}.sha256sum && \
 		curl -O ${TOR_TARBALL_URL}.sha256sum.asc && \
+		curl -O ${OBFS4_TARBALL_URL} &&\
 		curl -O ${LYREBIRD_TARBALL_URL} && \
 		curl -O ${MEEK_TARBALL_URL} && \
 		curl -O ${SNOWFLAKE_TARBALL_URL} ;\
@@ -154,6 +163,14 @@ cd .. || exit 1
 EOT
 
 RUN <<EOT
+tar -xvf ${OBFS4_TARBALL}
+cd obfs4-obfs4proxy-${OBFS4_VERSION} || exit 1
+go get -v
+go build -o /usr/local/bin/obfs4proxy ./obfs4proxy
+cd .. || exit 1
+EOT
+
+RUN <<EOT
 cp -rv /go/bin /usr/local/bin
 rm -rf /go
 rm -rf /tmp/*
@@ -167,6 +184,7 @@ COPY --from=builder /usr/share/tor /usr/share/tor
 COPY --from=builder /usr/local/bin/lyrebird /usr/local/bin/lyrebird
 COPY --from=builder /usr/local/bin/meek-client /usr/local/bin/meek-client
 COPY --from=builder /usr/local/bin/snowflake-client /usr/local/bin/snowflake-client
+COPY --from=builder /usr/local/bin/obfs4proxy /usr/local/bin/obfs4proxy
 #run
 FROM base AS runner
 EXPOSE 9050/tcp 9051/tcp
@@ -180,6 +198,7 @@ COPY --from=artifacts /usr/share/tor /usr/share/tor
 COPY --from=artifacts /usr/local/bin/lyrebird /usr/local/bin/lyrebird
 COPY --from=artifacts /usr/local/bin/meek-client /usr/local/bin/meek-client
 COPY --from=artifacts /usr/local/bin/snowflake-client /usr/local/bin/snowflake-client
+COPY --from=artifacts /usr/local/bin/obfs4proxy /usr/local/bin/obfs4proxy
 
 COPY entrypoint.sh /entrypoint.sh
 COPY start_tor.sh /start_tor.sh

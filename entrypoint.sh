@@ -2,4 +2,4 @@
 
 # Docker container entrypoint
 
-./start_tor.sh
+/start_tor.sh

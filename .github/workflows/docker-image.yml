@@ -43,4 +43,4 @@ jobs:
         file: ./Dockerfile 
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ghcr.io/ashchpi/tor-client-docker:0.4.9.6
+        tags: ghcr.io/ashchpi/tor-client-docker:0.4.9.6-1
